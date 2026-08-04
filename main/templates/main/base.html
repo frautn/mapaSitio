@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}MdP{% endblock %}</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; }
+        nav {
+            background-color: #1f2937;
+            color: white;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-left { display: flex; align-items: center; gap: 20px; }
+        .logo-outline {
+            color: transparent;
+            -webkit-text-stroke: 1px #ffffff;
+            text-stroke: 1.5px #ffffff;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+        .nav-links { display: flex; gap: 14px; }
+        .nav-links a { color: white; text-decoration: none; opacity: 0.9; }
+        .nav-links a.active {
+            opacity: 1;
+            font-weight: 700;
+            text-decoration: underline;
+            text-underline-offset: 4px;
+        }
+        .nav-links a:hover { opacity: 1; text-decoration: underline; }
+        .nav-user { display: flex; align-items: center; gap: 10px; }
+        .logout-btn {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        main { padding: 20px; }
+    </style>
+</head>
+<body>
+    {% include 'main/partials/navbar.html' %}
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

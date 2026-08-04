@@ -1,0 +1,184 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Artículos | MdP{% endblock %}
+
+{% block content %}
+    <style>
+        .articles-layout {
+            display: grid;
+            grid-template-columns: 1.1fr 2fr 1.1fr;
+            gap: 12px;
+            min-height: 70vh;
+        }
+        .articles-col {
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            background: #ffffff;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        .col-header {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e5e7eb;
+            font-weight: 700;
+            background: #f9fafb;
+        }
+        .col-body {
+            padding: 10px 12px;
+            overflow: auto;
+            flex: 1;
+        }
+        .article-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .list-search {
+            margin-bottom: 10px;
+        }
+        .list-search form {
+            display: flex;
+            gap: 8px;
+        }
+        .list-search input {
+            flex: 1;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 8px 10px;
+        }
+        .list-search select {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 8px 10px;
+            background: #ffffff;
+        }
+        .list-search button {
+            border: 1px solid #d1d5db;
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 8px 10px;
+            cursor: pointer;
+        }
+        .list-col {
+            max-height: calc(100vh - 130px);
+        }
+        .list-col .col-body {
+            overflow-y: auto;
+            overscroll-behavior: contain;
+        }
+        .article-item a {
+            display: block;
+            text-decoration: none;
+            color: #111827;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 8px 10px;
+            background: #ffffff;
+        }
+        .article-item a:hover {
+            background: #f8fafc;
+        }
+        .article-item.active a {
+            border-color: #1f2937;
+            background: #f3f4f6;
+            font-weight: 600;
+        }
+        .html-rendered {
+            line-height: 1.5;
+            color: #111827;
+        }
+        .html-rendered img,
+        .html-rendered video,
+        .html-rendered iframe {
+            max-width: 100%;
+            height: auto;
+        }
+        .html-rendered table {
+            width: 100%;
+            border-collapse: collapse;
+            display: block;
+            overflow-x: auto;
+        }
+        .html-rendered th,
+        .html-rendered td {
+            border: 1px solid #d1d5db;
+            padding: 6px 8px;
+        }
+        .html-rendered figure {
+            margin: 0 0 12px;
+        }
+        @media (max-width: 1100px) {
+            .articles-layout {
+                grid-template-columns: 1fr;
+                min-height: auto;
+            }
+            .list-col {
+                max-height: none;
+            }
+        }
+    </style>
+
+    <div class="articles-layout">
+        <section class="articles-col list-col">
+            <div class="col-header">Listado</div>
+            <div class="col-body">
+                <div class="list-search">
+                    <form method="get" action="{% url 'articles' %}">
+                        <input
+                            type="search"
+                            name="q"
+                            value="{{ search_query }}"
+                            placeholder="Buscar por ID o título"
+                            aria-label="Buscar artículos"
+                        >
+                        <select name="validado" aria-label="Filtrar por validado">
+                            <option value="" {% if not validado_filter %}selected{% endif %}>Todos</option>
+                            {% for value, label in validado_choices %}
+                                <option value="{{ value }}" {% if validado_filter == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit">Buscar</button>
+                    </form>
+                </div>
+                <ul class="article-list">
+                    {% for article in articles %}
+                        <li class="article-item {% if selected_article and article.ID == selected_article.ID %}active{% endif %}">
+                            <a href="{% url 'articles' %}?article_id={{ article.ID }}{% if search_query %}&q={{ search_query|urlencode }}{% endif %}{% if validado_filter %}&validado={{ validado_filter|urlencode }}{% endif %}">{{ article.ID }} - {{ article.GNews_title }}</a>
+                        </li>
+                    {% empty %}
+                        <li>No hay artículos cargados.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </section>
+
+        <section class="articles-col">
+            <div class="col-header">HTML Content</div>
+            <div class="col-body">
+                {% if selected_article %}
+                    <div class="html-rendered">{{ selected_html_content|safe }}</div>
+                {% else %}
+                    <p>No hay artículo seleccionado.</p>
+                {% endif %}
+            </div>
+        </section>
+
+        <section class="articles-col">
+            <div class="col-header">Info del Artículo</div>
+            <div class="col-body">
+                {% if selected_article %}
+                    <p><strong>ID:</strong> {{ selected_article.ID }}</p>
+                    <p><strong>Título GNews:</strong> {{ selected_article.GNews_title }}</p>
+                    <p><strong>Estado:</strong> {{ selected_article.validado }}</p>
+                    <p><strong>Próximamente:</strong> más información y acciones para este artículo.</p>
+                {% else %}
+                    <p>Sin datos para mostrar.</p>
+                {% endif %}
+            </div>
+        </section>
+    </div>
+{% endblock %}

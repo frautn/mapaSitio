@@ -1,0 +1,199 @@
+{% extends 'main/base.html' %}
+
+{% block title %}Importar/Exportar | MdP{% endblock %}
+
+{% block content %}
+    <style>
+        .workspace {
+            margin: 16px auto 0;
+            width: 100%;
+            max-width: 980px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            overflow: hidden;
+            background: #ffffff;
+        }
+        .workspace-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 10px;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+        .workspace-tab {
+            border: 1px solid #d1d5db;
+            background: #ffffff;
+            color: #111827;
+            border-radius: 8px;
+            padding: 8px 14px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .workspace-tab.active {
+            background: #1f2937;
+            color: #ffffff;
+            border-color: #1f2937;
+        }
+        .workspace-panel {
+            padding: 18px;
+        }
+        .workspace-panel[hidden] {
+            display: none;
+        }
+        .panel-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 12px;
+            margin-top: 12px;
+        }
+        .panel-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 12px;
+            background: #f8fafc;
+        }
+        .messages {
+            margin: 16px auto 0;
+            width: 100%;
+            max-width: 980px;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+        }
+        .message.success {
+            background: #ecfdf5;
+            border-color: #10b981;
+            color: #065f46;
+        }
+        .message.error {
+            background: #fef2f2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+        .upload-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
+            margin-top: 12px;
+        }
+        .upload-input {
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #ffffff;
+        }
+        .upload-button {
+            border: none;
+            border-radius: 8px;
+            padding: 9px 14px;
+            background: #1f2937;
+            color: #ffffff;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .upload-button:hover {
+            background: #111827;
+        }
+    </style>
+
+    <div class="messages">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <div class="workspace" id="import-export-workspace">
+        <div class="workspace-tabs" role="tablist" aria-label="Importar o exportar">
+            <button
+                type="button"
+                class="workspace-tab active"
+                role="tab"
+                id="tab-importar"
+                aria-controls="panel-importar"
+                aria-selected="true"
+                data-target="panel-importar"
+            >Importar</button>
+            <button
+                type="button"
+                class="workspace-tab"
+                role="tab"
+                id="tab-exportar"
+                aria-controls="panel-exportar"
+                aria-selected="false"
+                data-target="panel-exportar"
+            >Exportar</button>
+        </div>
+
+        <section class="workspace-panel" role="tabpanel" id="panel-importar" aria-labelledby="tab-importar">
+            <h2>Zona de Importación</h2>
+            <p>Subí un archivo para cargar artículos al sistema.</p>
+            <form class="upload-form" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input
+                    class="upload-input"
+                    type="file"
+                    name="csv_file"
+                    accept=".csv,text/csv"
+                    required
+                >
+                <button class="upload-button" type="submit">Importar CSV</button>
+            </form>
+            <div class="panel-grid">
+                <div class="panel-card">
+                    <h3>Formato esperado</h3>
+                    <p>El archivo debe incluir al menos las columnas ID, Fecha detección, Título, Link y Validado.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="workspace-panel" role="tabpanel" id="panel-exportar" aria-labelledby="tab-exportar" hidden>
+            <h2>Zona de Exportación</h2>
+            <p>Elegí el formato para descargar artículos existentes.</p>
+            <div class="panel-grid">
+                <div class="panel-card">
+                    <h3>Exportar CSV</h3>
+                    <p>Descargá una tabla lista para análisis.</p>
+                </div>
+                <div class="panel-card">
+                    <h3>Exportar JSON</h3>
+                    <p>Obtené los datos en formato estructurado.</p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        (function () {
+            const workspace = document.getElementById('import-export-workspace');
+            if (!workspace) {
+                return;
+            }
+
+            const tabs = workspace.querySelectorAll('.workspace-tab');
+            const panels = workspace.querySelectorAll('.workspace-panel');
+
+            const activateTab = (selectedTab) => {
+                tabs.forEach((tab) => {
+                    const isActive = tab === selectedTab;
+                    tab.classList.toggle('active', isActive);
+                    tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+                });
+
+                const targetId = selectedTab.getAttribute('data-target');
+                panels.forEach((panel) => {
+                    panel.hidden = panel.id !== targetId;
+                });
+            };
+
+            tabs.forEach((tab) => {
+                tab.addEventListener('click', () => activateTab(tab));
+            });
+        })();
+    </script>
+{% endblock %}

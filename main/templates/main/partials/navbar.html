@@ -1,0 +1,28 @@
+<nav>
+    <div class="nav-left">
+        <span class="logo-outline">MdP</span>
+        <div class="nav-links">
+            <a
+                href="{% url 'articles' %}"
+                class="{% if request.resolver_match.url_name == 'articles' %}active{% endif %}"
+                {% if request.resolver_match.url_name == 'articles' %}aria-current="page"{% endif %}
+            >Artículos</a>
+            <a
+                href="{% url 'import_export' %}"
+                class="{% if request.resolver_match.url_name == 'import_export' %}active{% endif %}"
+                {% if request.resolver_match.url_name == 'import_export' %}aria-current="page"{% endif %}
+            >Importar/Exportar</a>
+        </div>
+    </div>
+    <div class="nav-user">
+        {% if user.is_authenticated %}
+            <span>{{ user.username }}</span>
+            <form method="post" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button class="logout-btn" type="submit">Salir</button>
+            </form>
+        {% else %}
+            <span>Invitado</span>
+        {% endif %}
+    </div>
+</nav>
