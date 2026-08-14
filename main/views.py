@@ -1,5 +1,6 @@
 """main/views.py"""
 import csv
+import sys
 from datetime import datetime
 import json
 
@@ -44,6 +45,12 @@ def import_articles_from_csv(uploaded_file):
     skipped_count = 0
 
     decoded_file = uploaded_file.read().decode('utf-8-sig').splitlines()
+    # 1. Increase the global field size limit
+    try:
+        csv.field_size_limit(sys.maxsize)
+    except OverflowError:
+        # Fallback for systems where sys.maxsize exceeds the C long limit
+        csv.field_size_limit(2147483647)
     reader = csv.DictReader(decoded_file)
 
     for row in reader:
@@ -62,21 +69,22 @@ def import_articles_from_csv(uploaded_file):
             article_date_save = Article.parse_gnews_date(article_date)
 
         article, created = Article.objects.update_or_create(
-            ID=article_id,
-            defaults={
-                'date': article_date_save,
-                'GNews_title': (row.get('Título') or '').strip()[:500],
-                'Diffbot_title': (json_obj.get('title') or '').strip()[:500],
-                'siteName': (json_obj.get('siteName') or '').strip()[:200],
-                'link': (json_obj.get('resolvedPageUrl') or '').strip(),
-                'validado': _normalize_validado(row.get('Validado', '').strip()),
-            },
+        ID=article_id,
+        defaults={
+            'date': article_date_save,
+            'GNews_title': (row.get('Título') or '').strip()[:500],
+            'Diffbot_title': (json_obj.get('title') or '').strip()[:500],
+            'siteName': (json_obj.get('siteName') or '').strip()[:200],
+            'link': (json_obj.get('resolvedPageUrl') or '').strip(),
+            'validado': _normalize_validado(row.get('Validado', '').strip()),
+        },
         )
+
         ArticleContent.objects.update_or_create(
-            article=article,
-            defaults={
-                'html_content': (json_obj.get('html') or 'Sin datos.').strip(),
-            },
+        article=article,
+        defaults={
+            'html_content': (json_obj.get('html') or 'Sin datos.').strip(),
+        },
         )
 
         if created:
