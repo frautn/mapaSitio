@@ -10,7 +10,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - mapa_postgres_data:/var/lib/postgresql/data
+      - mapa_data:/var/lib/postgresql/data
 
 volumes:
-  mapa_postgres_data:
+  mapa_data:
