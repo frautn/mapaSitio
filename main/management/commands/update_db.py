@@ -42,12 +42,16 @@ class Command(BaseCommand):
             raise CommandError(
                 "token.json no encontrado. Por favor autentíquese y guarde token.json en el directorio secrets."
             )
-            # self.stdout.write(self.style.WARNING(
-            #     "token.json not found. Please authenticate and save token.json in secrets directory."
-            # ))
             # return
 
         self.stdout.write("Autenticación exitosa.")
+
+        json_folder = Path("../Taller-Datos---MP/downloads/diffbot")
+        if not json_folder.exists():
+            self.stdout.write(self.style.WARNING(
+                "El directorio diffbot no existe. Descargando diffbot_responses.tar.gz."
+            ))
+
 
         client = gspread.authorize(creds)
         load_dotenv()  # Automatically finds .env file
@@ -66,5 +70,6 @@ class Command(BaseCommand):
             archivo = row['archivo']
             if not isinstance(archivo, str) or not archivo.endswith('.txt'):
                 continue
+
 
             self.stdout.write(f"Archivo {archivo}")
