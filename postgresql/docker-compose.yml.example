@@ -1,7 +1,7 @@
 services:
   db:
     image: postgres:16-alpine
-    container_name: django_postgres
+    container_name: mapa_django_pg
     restart: always
     environment:
       POSTGRES_DB: myproject_db
@@ -10,7 +10,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mapa_postgres_data:/var/lib/postgresql/data
 
 volumes:
-  postgres_data:
+  mapa_postgres_data:
