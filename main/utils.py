@@ -9,6 +9,7 @@ import subprocess
 import sys
 import json
 from datetime import datetime
+import pandas as pd
 
 from google.oauth2 import service_account
 import gspread
@@ -153,6 +154,8 @@ def download_data(progress_callback=None):
     files = response.get("files", [])
     if not files:
         report("No se encontró diffbot_responses.tar.gz en la carpeta.")
+        # TODO: Handle this possible issue 
+        exit(1)
     else:
         report("Descargando diffbot_responses.tar.gz ...")
         file_info = files[0]
@@ -168,4 +171,41 @@ def download_data(progress_callback=None):
         subprocess.run(['tar', '-xz', '-f', f'{download_root}/diffbot_responses.tar.gz', '-C', f'{diffbot_folder}'])
         report("Extrayendo diffbot_responses.tar.gz ... Listo")
 
-    return diffbot_folder
+    ws = spreadsheet.worksheet('INBOX')
+    raw_values = ws.get_all_values()
+
+    headers = ['Fecha_deteccion', 'Medio', 'Titulo', 'Link', 'Keyword_detectada',
+            'Fuente', 'Revisado', 'Validado', 'Observaciones', 'Estado_IA',
+            'Palabras_detectadas', 'Puntaje', 'archivo', 'Puntaje_solo_titulo', 'otro_2']
+
+    # Map values to records (skipping row 0 if row 0 has the old headers)
+    all_records = gspread.utils.to_records(headers, raw_values[1:])
+
+    df_sd = pd.DataFrame(all_records)
+
+    # Add column with the actual row number in the Google Spreadsheet
+    # (raw_values[1:] starts at spreadsheet row 2)
+    df_sd["gdrive_index"] = range(2, 2 + len(df_sd))
+
+    # Remove invalid rows: no Title
+    # Filter out empty/whitespace strings and NaNs
+    col = df_sd.columns[2]
+    df_sd = df_sd[df_sd[col].astype(str).str.strip().ne("") & df_sd[col].notna()]
+
+    # Reset index, keep the old index for reference, matching the row number in the gdrive sheet.
+    # df_sd.reset_index(names="gdrive_index", inplace=True)
+    df_sd.reset_index(drop=True, inplace=True)
+
+    # Remove column "Medio", it's always equal to "Google News"
+    df_sd.drop(columns=["Medio"], inplace=True)
+
+    # Remove column "Fuente", it shows the search source URL, not the url for the article
+    df_sd.drop(columns=["Fuente"], inplace=True)
+
+    # Keep only rows with .txt files in the "archivo" column
+    df_sd = df_sd[df_sd["archivo"].astype(str).str.endswith(".txt")]
+
+    report(f"SIN DETENIDOS descargada: {len(df_sd)} registros válidos")
+
+
+    return df_sd

@@ -69,6 +69,11 @@ def import_export(request):
 
 
 def update_db(request):
-    download_data(progress_callback=lambda message: messages.info(request, message))
+    df = download_data(progress_callback=lambda message: messages.info(request, message))
+
+    
+
+
+
     messages.success(request, 'Actualización completa.')
     return redirect('home')
