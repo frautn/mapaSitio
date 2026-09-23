@@ -1,3 +1,10 @@
+#----------------
+# Command to update the database from Google Sheets and local diffbot JSON files
+#
+# THIS IS STILL IN DEVELOPMENT, NOT WORKING FULLY YET
+#
+#----------------
+
 from django.core.management.base import BaseCommand, CommandError
 
 # import json

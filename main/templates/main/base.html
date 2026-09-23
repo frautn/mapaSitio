@@ -40,10 +40,42 @@
             cursor: pointer;
         }
         main { padding: 20px; }
+        .messages {
+            margin: 0 20px 16px;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+        }
+        .message.success {
+            background: #ecfdf5;
+            border-color: #10b981;
+            color: #065f46;
+        }
+        .message.error {
+            background: #fef2f2;
+            border-color: #ef4444;
+            color: #991b1b;
+        }
+        .message.info {
+            background: #eff6ff;
+            border-color: #3b82f6;
+            color: #1e3a8a;
+        }
     </style>
 </head>
 <body>
     {% include 'main/partials/navbar.html' %}
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
 
     <main>
         {% block content %}{% endblock %}

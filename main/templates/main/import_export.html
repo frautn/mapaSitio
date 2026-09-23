@@ -52,27 +52,6 @@
             padding: 12px;
             background: #f8fafc;
         }
-        .messages {
-            margin: 16px auto 0;
-            width: 100%;
-            max-width: 980px;
-        }
-        .message {
-            margin-bottom: 10px;
-            padding: 10px 12px;
-            border-radius: 8px;
-            border: 1px solid transparent;
-        }
-        .message.success {
-            background: #ecfdf5;
-            border-color: #10b981;
-            color: #065f46;
-        }
-        .message.error {
-            background: #fef2f2;
-            border-color: #ef4444;
-            color: #991b1b;
-        }
         .upload-form {
             display: flex;
             flex-wrap: wrap;
@@ -99,14 +78,6 @@
             background: #111827;
         }
     </style>
-
-    <div class="messages">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="message {{ message.tags }}">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
-    </div>
 
     <div class="workspace" id="import-export-workspace">
         <div class="workspace-tabs" role="tablist" aria-label="Importar o exportar">
